@@ -14,12 +14,20 @@ let SimplySafeState = {
     OFF: "off"
 };
 
+let homekitStateNames = {};
+
 function SimpliSafeSecuritySystemAccessory(log, config) {
     this.log = log;
 
     this.httpMethod = config.http_method || "GET";
     this.auth = config.auth;
     this.name = config.name;
+
+    // setup homekit state names
+    homekitStateNames[Characteristic.SecuritySystemTargetState.STAY_ARM] = "stay";
+    homekitStateNames[Characteristic.SecuritySystemTargetState.NIGHT_ARM] = "night";
+    homekitStateNames[Characteristic.SecuritySystemTargetState.AWAY_ARM] = "away";
+    homekitStateNames[Characteristic.SecuritySystemTargetState.DISARM] = "disarm";
 
     this.convertHomeKitStateToSimpliSafeState = function(homeKitState) {
         switch (homeKitState) {
@@ -49,16 +57,15 @@ function SimpliSafeSecuritySystemAccessory(log, config) {
 SimpliSafeSecuritySystemAccessory.prototype = {
 
     setTargetState: function(state, callback) {
-        this.log("Setting state to %s", state);
+        this.log("setTargetState");
 
         let self = this;
-        // Set state in simplisafe 'off' or 'home' or 'away'
         simplisafe(this.auth, function (er, client) {
-            self.log(er, client);
-            self.log("Setting alarm state to:", state);
+            //self.log(er, client);
+            self.log("  setting alarm state from Homekit State " + state + " (" + homekitStateNames[state] + ")");
             client.setState(self.convertHomeKitStateToSimpliSafeState(state), function() {
                 if (client && client.info && client.info.state) {
-                    self.log("Callback for set state state to:", client.info.state);
+                    self.log("    callback setting alarm state to SimpliSafe State (" + client.info.state + ")");
                     // Important: after a successful server response, we update the current state of the system
                     self.securityService.setCharacteristic(Characteristic.SecuritySystemCurrentState, state);
                     callback(null, state);
@@ -68,24 +75,23 @@ SimpliSafeSecuritySystemAccessory.prototype = {
         });
     },
 
-    getState: function(callback) {
+    getState: function(callback, name) {
+        this.log (name);
         let self = this;
         simplisafe(this.auth, function (er, client) {
             if (client && client.info && client.info.state) {
-                self.log("getting alarm state:", client.info.state);
+                self.log("  getting SimpliSafe State (" + client.info.state + ")");
                 callback(null, self.convertSimpliSafeStateToHomeKitState(client.info.state));
             }
         });
     },
 
     getCurrentState: function(callback) {
-        this.log("Getting current state");
-        this.getState(callback);
+        this.getState(callback, "getCurrentState");
     },
 
     getTargetState: function(callback) {
-        this.log("Getting target state");
-        this.getState(callback);
+        this.getState(callback, "getTargetState");
     },
 
     identify: function(callback) {
