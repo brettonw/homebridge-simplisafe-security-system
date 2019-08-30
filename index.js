@@ -44,9 +44,9 @@ function SimpliSafeSecuritySystemAccessory(log, config) {
 
     this.convertSimpliSafeStateToHomeKitState = function(simpliSafeState) {
         switch (simpliSafeState) {
-            case SimplySafeState.PENDING_OFF:
             case SimplySafeState.HOME:
                 return Characteristic.SecuritySystemTargetState.STAY_ARM;
+            case SimplySafeState.PENDING_OFF:
             case SimplySafeState.AWAY:
                 return Characteristic.SecuritySystemTargetState.AWAY_ARM;
             case SimplySafeState.PENDING_HOME:
