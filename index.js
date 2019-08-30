@@ -8,6 +8,7 @@ module.exports = function(homebridge){
 };
 
 let SimplySafeState = {
+    PENDING_OFF: "pending off",
     PENDING_HOME: "pending home",
     HOME: "home",
     AWAY: "away",
@@ -24,10 +25,10 @@ function SimpliSafeSecuritySystemAccessory(log, config) {
     this.name = config.name;
 
     // setup homekit state names
-    homekitStateNames[Characteristic.SecuritySystemTargetState.STAY_ARM] = "stay";
-    homekitStateNames[Characteristic.SecuritySystemTargetState.NIGHT_ARM] = "night";
-    homekitStateNames[Characteristic.SecuritySystemTargetState.AWAY_ARM] = "away";
-    homekitStateNames[Characteristic.SecuritySystemTargetState.DISARM] = "disarm";
+    homekitStateNames[Characteristic.SecuritySystemTargetState.STAY_ARM] = "Home";
+    homekitStateNames[Characteristic.SecuritySystemTargetState.NIGHT_ARM] = "Night";
+    homekitStateNames[Characteristic.SecuritySystemTargetState.AWAY_ARM] = "Away";
+    homekitStateNames[Characteristic.SecuritySystemTargetState.DISARM] = "Off";
 
     this.convertHomeKitStateToSimpliSafeState = function(homeKitState) {
         switch (homeKitState) {
@@ -43,6 +44,7 @@ function SimpliSafeSecuritySystemAccessory(log, config) {
 
     this.convertSimpliSafeStateToHomeKitState = function(simpliSafeState) {
         switch (simpliSafeState) {
+            case SimplySafeState.PENDING_OFF:
             case SimplySafeState.HOME:
                 return Characteristic.SecuritySystemTargetState.STAY_ARM;
             case SimplySafeState.AWAY:
