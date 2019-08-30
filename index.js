@@ -8,6 +8,7 @@ module.exports = function(homebridge){
 };
 
 let SimplySafeState = {
+    PENDING_HOME: "pending home",
     HOME: "home",
     AWAY: "away",
     OFF: "off"
@@ -38,6 +39,7 @@ function SimpliSafeSecuritySystemAccessory(log, config) {
                 return Characteristic.SecuritySystemTargetState.STAY_ARM;
             case SimplySafeState.AWAY:
                 return Characteristic.SecuritySystemTargetState.AWAY_ARM;
+            case SimplySafeState.PENDING_HOME:
             case SimplySafeState.OFF:
                 return Characteristic.SecuritySystemTargetState.DISARM;
         }
